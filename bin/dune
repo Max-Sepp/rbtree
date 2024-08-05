@@ -1,0 +1,5 @@
+(executable
+ (public_name rbtree)
+ (name main)
+ (modes byte exe)
+ (libraries rbtree))
