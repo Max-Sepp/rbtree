@@ -1,4 +1,4 @@
-type node_color = Red | Black | Double_Black
+type node_color = Red | Black
 
 type 'a rbtree =
   | Leaf
@@ -9,7 +9,7 @@ type 'a rbtree =
       right : 'a rbtree;
     }
 
-let balance = function
+let insertion_balance = function
   | Node
       {
         value = z;
@@ -82,11 +82,11 @@ let insert insert_value tree =
         Node { value = insert_value; color = Red; left = Leaf; right = Leaf }
     | Node { value; color; left; right } ->
         if insert_value < value then
-          balance
+          insertion_balance
             (Node
                { value; color; left = insert_helper insert_value left; right })
         else if insert_value > value then
-          balance
+          insertion_balance
             (Node
                { value; color; left; right = insert_helper insert_value right })
         else
@@ -96,13 +96,6 @@ let insert insert_value tree =
   | Node { value; color = _; left; right } ->
       Node { value; color = Black; left; right }
   | Leaf -> failwith "Helper function returned invalid value"
-
-type problem_node = Left | Right | None
-
-let rec inorder_predecessor = function
-  | Leaf -> failwith "No inorder predecessor"
-  | Node { value; right; _ } ->
-      if right = Leaf then value else inorder_predecessor right
 
 let rec print_json = function
   | Node x ->

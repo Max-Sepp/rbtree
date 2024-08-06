@@ -1,4 +1,4 @@
-(lang dune 3.16)
+(lang dune 2.6)
 
 (name rbtree)
 
