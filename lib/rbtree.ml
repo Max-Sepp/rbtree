@@ -1,7 +1,7 @@
-type node_color = Red | Black
+type node_color = Red | Black | Double_Black
 
 type 'a rbtree =
-  | Leaf
+  | Leaf of node_color
   | Node of {
       value : 'a;
       color : node_color;
@@ -9,7 +9,7 @@ type 'a rbtree =
       right : 'a rbtree;
     }
 
-let insertion_balance = function
+let balance = function
   | Node
       {
         value = z;
@@ -73,29 +73,71 @@ let insertion_balance = function
           left = Node { color = Black; value = x; left = a; right = b };
           right = Node { color = Black; value = z; left = c; right = d };
         }
+  (* | Node
+         {
+           value = z;
+           color = Double_Black;
+           left =
+             Node
+               {
+                 value = x;
+                 color = Red;
+                 left = a;
+                 right = Node { value = y; color = Red; left = b; right = c };
+               };
+           right = d;
+         }
+     | Node
+         {
+           value = x;
+           color = Double_Black;
+           left = a;
+           right =
+             Node
+               {
+                 value = z;
+                 color = Red;
+                 left = Node { value = y; color = Red; left = b; right = c };
+                 right = d;
+               };
+         } ->
+         Node
+           {
+             value = y;
+             color = Black;
+             left = Node { value = x; color = Black; left = a; right = b };
+             right = Node { value = z; color = Black; left = c; right = d };
+           } *)
   | Node { value; color; left; right } -> Node { value; color; left; right }
-  | Leaf -> Leaf
+  | Leaf Black -> Leaf Black
+  | _ -> failwith "Invalid tree entered"
 
 let insert insert_value tree =
   let rec insert_helper insert_value = function
-    | Leaf ->
-        Node { value = insert_value; color = Red; left = Leaf; right = Leaf }
-    | Node { value; color; left; right } ->
+    | Leaf Black ->
+        Node
+          {
+            value = insert_value;
+            color = Red;
+            left = Leaf Black;
+            right = Leaf Black;
+          }
+    | Node { value; color; left; right } as n ->
         if insert_value < value then
-          insertion_balance
+          balance
             (Node
                { value; color; left = insert_helper insert_value left; right })
         else if insert_value > value then
-          insertion_balance
+          balance
             (Node
                { value; color; left; right = insert_helper insert_value right })
-        else
-          Node { value = insert_value; color = Red; left = Leaf; right = Leaf }
+        else n
+    | _ -> failwith "Invalid tree entered"
   in
   match insert_helper insert_value tree with
   | Node { value; color = _; left; right } ->
       Node { value; color = Black; left; right }
-  | Leaf -> failwith "Helper function returned invalid value"
+  | Leaf _ -> failwith "Helper function returned invalid value"
 
 let rec print_json = function
   | Node x ->
@@ -108,4 +150,4 @@ let rec print_json = function
       print_string ", \"right\": ";
       print_json x.right;
       print_string "}"
-  | Leaf -> print_string "\"Leaf\""
+  | Leaf _ -> print_string "Leaf\" "

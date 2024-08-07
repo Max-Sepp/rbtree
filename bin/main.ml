@@ -1,6 +1,7 @@
 open Rbtree
 
-let tree = ref (Node { value = 5; color = Black; left = Leaf; right = Leaf })
+let tree =
+  ref (Node { value = 5; color = Black; left = Leaf Black; right = Leaf Black })
 
 (* let () =
    while true do
